@@ -4,27 +4,22 @@
 void mnblas_saxpy(const int N, const float alpha, const float *X,
                  const int incX, float *Y, const int incY)
 {
-  register unsigned int i = 0 ;
-  register unsigned int j = 0 ;
-
-  for (; ((i < N) && (j < N)) ; i += incX, j+=incY)
+ 
+  #pragma omp parallel for
+  for (int i = 0; i < N ; i += incX)
     {
-      Y[j] = alpha*X[i] + Y[j];
+      Y[i] = alpha*X[i] + Y[i];
     }
-
-    return;
-
+  return;
 }
 
 void mnblas_daxpy(const int N, const double alpha, const double *X,
                  const int incX, double *Y, const int incY)
 {
-  register unsigned int i = 0 ;
-  register unsigned int j = 0 ;
-
-  for (; ((i < N) && (j < N)) ; i += incX, j+=incY)
+  #pragma omp parallel for
+  for (int i = 0; i < N ; i += incX)
     {
-      Y[j] = alpha*X[i] + Y[j];
+      Y[i] = alpha*X[i] + Y[i];
     }
 
     return;
@@ -34,23 +29,37 @@ void mnblas_daxpy(const int N, const double alpha, const double *X,
 void mnblas_caxpy(const int N, const void *alpha, const void *X,
                  const int incX, void *Y, const int incY)
 {
-  register unsigned int i = 0 ;
-  register unsigned int j = 0 ;
+  float axpy_r = 0 ;
+  float axpy_i = 0 ;
   complexe_float_t* x = (complexe_float_t*)X;
   complexe_float_t* y = (complexe_float_t*)Y;
   complexe_float_t* a = (complexe_float_t*)alpha;
-  for (; ((i < N) && (j < N)) ; i += incX, j+=incY)
-      y[j] = add_complexe_float(mult_complexe_float(x[i], *a),y[j]);
+  
+  #pragma omp parallel for private(axpy_r, axpy_i)
+  for (int i = 0; i < N ; i += incX)
+    {
+      axpy_r = a->real * x[i].real - a->imaginary * x[i].imaginary + y[i].real;
+      axpy_i = x[i].real * a->imaginary + x[i].imaginary * a->real + y[i].imaginary;
+      y[i].real = axpy_r;
+      y[i].imaginary = axpy_i;
+    }
 }
 
 void mnblas_zaxpy(const int N, const void *alpha, const void *X,
                  const int incX, void *Y, const int incY)
 {
-  register unsigned int i = 0 ;
-  register unsigned int j = 0 ;
+  double axpy_r = 0 ;
+  double axpy_i = 0 ;
   complexe_double_t* x = (complexe_double_t*)X;
   complexe_double_t* y = (complexe_double_t*)Y;
   complexe_double_t* a = (complexe_double_t*)alpha;
-  for (; ((i < N) && (j < N)) ; i += incX, j+=incY)
-        y[j] = add_complexe_double(mult_complexe_double(x[i], *a),y[j]);
+  
+  #pragma omp parallel for private(axpy_r, axpy_i)
+  for (int i = 0; i < N ; i += incX)
+    {
+      axpy_r = a->real * x[i].real - a->imaginary * x[i].imaginary + y[i].real;
+      axpy_i = x[i].real * a->imaginary + x[i].imaginary * a->real + y[i].imaginary;
+      y[i].real = axpy_r;
+      y[i].imaginary = axpy_i;
+    }
 }

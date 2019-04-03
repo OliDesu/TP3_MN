@@ -103,9 +103,6 @@ void mncblas_zgemm(MNCBLAS_LAYOUT layout, MNCBLAS_TRANSPOSE TransA,
                  const int lda, const void *B, const int ldb,
                  const void *beta, void *C, const int ldc)
 {
-    register unsigned k = 0;
-    register unsigned i = 0;
-    register unsigned j = 0;
     register unsigned p = 0;
     register complexe_double_t res;
 
@@ -114,21 +111,20 @@ void mncblas_zgemm(MNCBLAS_LAYOUT layout, MNCBLAS_TRANSPOSE TransA,
     register complexe_double_t * c = (complexe_double_t*) C;
     register complexe_double_t * bet = (complexe_double_t*) beta;
     register complexe_double_t * alp = (complexe_double_t*) alpha;
-    for(; i < M && j < M; i++, j++)
+    for(int i = 0; i < M; i++)
     {
-        for(; k < N; k++)
+        for(int k = 0; k < N; k++)
         {
             for(int h = 0; h < N; h++)
             {
-                res = mult_complexe_double(a[i*N  + h], b[h*N + j ]);
+                res = mult_complexe_double(a[i*N  + h], b[h*N + i ]);
                 
             }
             c[p] = mult_complexe_double(c[p], *bet);
             c[p] = add_complexe_double(c[p], mult_complexe_double(*alp, res));
-            res.real = 0;
-            res.imaginary = 0;
+            res.real = 0.0;
+            res.imaginary = 0.0;
             p++;
         }
-        k=0;
     }
 }
