@@ -7,7 +7,7 @@
 //=======================TEST COPY==========================//
 //==========================================================//
 
-#define N 3
+#define N 4096
 int main(int argc, char **argv){
   unsigned long long start, end ;
 
@@ -22,14 +22,14 @@ int main(int argc, char **argv){
   start = _rdtsc () ;
     mncblas_scopy(N, X, incX,Y,incY);
   end = _rdtsc () ;
-  printf("X = ");
-   for(int i = 0 ; i < N ; i++){
-    printf("%lf ", X[i]);
-  }
-  printf(" \nY = ");
-  for(int i = 0 ; i < N ; i++){
-  printf("%lf ", Y[i]);
-  }
+  // printf("X = ");
+  //  for(int i = 0 ; i < N ; i++){
+  //   printf("%lf ", X[i]);
+  // }
+  // printf(" \nY = ");
+  // for(int i = 0 ; i < N ; i++){
+  // printf("%lf ", Y[i]);
+  // }
   printf("\n");
   printf("%lf bit/sec\n", (double)(N*sizeof(float)*1000)/(end - start));
 
@@ -43,14 +43,14 @@ int main(int argc, char **argv){
   start = _rdtsc () ;
     mncblas_dcopy(N, X1, incX,Y1,incY);
   end = _rdtsc () ;
-  printf("X = ");
-   for(int i = 0 ; i < N ; i++){
-    printf("%lf ", X1[i]);
-  }
-  printf(" \nY = ");
-  for(int i = 0 ; i < N ; i++){
-  printf("%lf ", Y1[i]);
-  }
+  // printf("X = ");
+  //  for(int i = 0 ; i < N ; i++){
+  //   printf("%lf ", X1[i]);
+  // }
+  // printf(" \nY = ");
+  // for(int i = 0 ; i < N ; i++){
+  // printf("%lf ", Y1[i]);
+  // }
   printf("\n");
   printf("%lf bit/sec\n", (double)(N*sizeof(double)*1000)/(end - start));
 

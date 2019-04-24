@@ -115,8 +115,8 @@ int main (int argc, char **argv)
     complexe_float_t* dotu = malloc(sizeof(complexe_float_t));
     dotu->real = 0.0;
     dotu->imaginary = 0.0;
-    vector_c_float_init (veccf1, 1.0, 1.0) ;
-    vector_c_float_init (veccf2, 2.0, 2.0) ;
+    vector_c_float_init (veccf1, 1.0, 2.0) ;
+    vector_c_float_init (veccf2, 1.0, 2.0) ;
     start = _rdtsc () ;
       mncblas_cdotu_sub (VECSIZE, veccf1, 1, veccf2, 1, dotu) ;
     end = _rdtsc () ;

@@ -63,6 +63,7 @@ void mncblas_cgemv(MNCBLAS_LAYOUT layout,
     res.imaginary = 0.0;
     for(int k = 0; k < N; k++)
     {
+      
       res =add_complexe_float(res, mult_complexe_float(a[i*N + k], x[i]));
 
     }

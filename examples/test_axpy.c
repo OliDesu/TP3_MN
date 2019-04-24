@@ -98,8 +98,8 @@ int main (int argc, char **argv)
       end = _rdtsc () ;
       
       printf ("mnblas_saxpy %d : nombre de cycles: %Ld \n", i, end-start) ;
-      calcul_flop ("sdot ", 2 * VECSIZE, end-start) ;
-    printf("Resultat float : %lf \n", vec2[0]);    
+      calcul_flop ("sdot ", VECSIZE/4, end-start) ;
+      printf("Resultat float : %lf \n", vec2[0]);  
     }
 
   printf("\n\n========================AXPY DOUBLE=========================== \n");

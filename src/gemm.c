@@ -7,27 +7,22 @@ void mncblas_sgemm(MNCBLAS_LAYOUT layout, MNCBLAS_TRANSPOSE TransA,
                  const int lda, const float *B, const int ldb,
                  const float beta, float *C, const int ldc)
 {
-    register unsigned k = 0;
-    register unsigned i = 0;
-    register unsigned j = 0;
-    register unsigned p = 0;
     register float res = 0.0;
 
-    for(; i < M && j < M; i++, j++)
+    #pragma omp parallel for private(res)
+    for(int i = 0; i < M ; i++)
     {
-        for(; k < N; k++)
+        for(int k = 0; k < N; k++)
         {
+            res=0;
             for(int h = 0; h < N; h++)
             {
-                res = A[i*N + h] * B[h*N + j];
+                res += A[i*N + h] * B[h*N + i];
                 
             }
-            C[p] *= beta;
-            C[p]+= alpha * res;
-            res=0;
-            p++;
+            C[i * N + k] *= beta;
+            C[i * N + k] += alpha * res;
         }
-        k=0;
     }
 }
 
@@ -37,27 +32,22 @@ void mncblas_dgemm(MNCBLAS_LAYOUT layout, MNCBLAS_TRANSPOSE TransA,
                  const int lda, const double *B, const int ldb,
                  const double beta, double *C, const int ldc) 
 {
-    register unsigned k = 0;
-    register unsigned i = 0;
-    register unsigned j = 0;
-    register unsigned p = 0;
     register double res = 0.0;
 
-    for(; i < M && j < M; i++, j++)
+    #pragma omp parallel for private(res)
+    for(int i = 0; i < M ; i++)
     {
-        for(; k < N; k++)
+        for(int k = 0; k < N; k++)
         {
+            res=0;
             for(int h = 0; h < N; h++)
             {
-                res = A[i*N + h] * B[h*N + j];
+                res += A[i*N + h] * B[h*N + i];
                 
             }
-            C[p] *= beta;
-            C[p]+= alpha * res;
-            res=0;
-            p++;
+            C[i * N + k] *= beta;
+            C[i * N + k] += alpha * res;
         }
-        k=0;
     }
 }
 
@@ -67,10 +57,6 @@ void mncblas_cgemm(MNCBLAS_LAYOUT layout, MNCBLAS_TRANSPOSE TransA,
                  const int lda, const void *B, const int ldb,
                  const void *beta, void *C, const int ldc)
 {
-    register unsigned k = 0;
-    register unsigned i = 0;
-    register unsigned j = 0;
-    register unsigned p = 0;
     register complexe_float_t res;
 
     register complexe_float_t * a = (complexe_float_t*) A;
@@ -78,22 +64,22 @@ void mncblas_cgemm(MNCBLAS_LAYOUT layout, MNCBLAS_TRANSPOSE TransA,
     register complexe_float_t * c = (complexe_float_t*) C;
     register complexe_float_t * bet = (complexe_float_t*) beta;
     register complexe_float_t * alp = (complexe_float_t*) alpha;
-    for(; i < M && j < M; i++, j++)
+
+    #pragma omp parallel for private(res)
+    for(int i = 0; i < M; i++)
     {
-        for(; k < N; k++)
+        for(int k = 0; k < N; k++)
         {
-            for(int h = 0; h < N; h++)
-            {
-                res = mult_complexe_float(a[i*N  + h], b[h*N + j]);
-                
-            }
-            c[p] = mult_complexe_float(c[p], *bet);
-            c[p] = add_complexe_float(c[p], mult_complexe_float(*alp, res));
             res.real = 0;
             res.imaginary = 0;
-            p++;
+            for(int h = 0; h < N; h++)
+            {
+                res = add_complexe_float(res, mult_complexe_float(a[i*N  + h], b[h*N + i]));
+                
+            }
+            c[i * M + k] = mult_complexe_float(c[i * M + k], *bet);
+            c[i * M + k] = add_complexe_float(c[i * M + k], mult_complexe_float(*alp, res));
         }
-        k=0;
     }
 }
 
@@ -103,7 +89,6 @@ void mncblas_zgemm(MNCBLAS_LAYOUT layout, MNCBLAS_TRANSPOSE TransA,
                  const int lda, const void *B, const int ldb,
                  const void *beta, void *C, const int ldc)
 {
-    register unsigned p = 0;
     register complexe_double_t res;
 
     register complexe_double_t * a = (complexe_double_t*) A;
@@ -111,20 +96,20 @@ void mncblas_zgemm(MNCBLAS_LAYOUT layout, MNCBLAS_TRANSPOSE TransA,
     register complexe_double_t * c = (complexe_double_t*) C;
     register complexe_double_t * bet = (complexe_double_t*) beta;
     register complexe_double_t * alp = (complexe_double_t*) alpha;
+    #pragma omp parallel for private(res)
     for(int i = 0; i < M; i++)
     {
         for(int k = 0; k < N; k++)
         {
+            res.real = 0;
+            res.imaginary = 0;
             for(int h = 0; h < N; h++)
             {
-                res = mult_complexe_double(a[i*N  + h], b[h*N + i ]);
+                res = add_complexe_double(res, mult_complexe_double(a[i*N  + h], b[h*N + i]));
                 
             }
-            c[p] = mult_complexe_double(c[p], *bet);
-            c[p] = add_complexe_double(c[p], mult_complexe_double(*alp, res));
-            res.real = 0.0;
-            res.imaginary = 0.0;
-            p++;
+            c[i * M + k] = mult_complexe_double(c[i * M + k], *bet);
+            c[i * M + k] = add_complexe_double(c[i * M + k], mult_complexe_double(*alp, res));
         }
     }
 }

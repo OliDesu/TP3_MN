@@ -1,28 +1,50 @@
 #include "mnblas.h"
 #include "complexe.h"
+#include <smmintrin.h>
+#include <x86intrin.h>
 
 void mnblas_saxpy(const int N, const float alpha, const float *X,
                  const int incX, float *Y, const int incY)
 {
- 
-  #pragma omp parallel for
-  for (int i = 0; i < N ; i += incX)
+  __m128 v1 ;
+  register unsigned int i ;
+  float axpy [4] __attribute__ ((aligned (16))) ;
+
+  #pragma omp parallel for private(v1, axpy)
+    for (i = 0; i < N; i = i + 4)
     {
-      Y[i] = alpha*X[i] + Y[i];
+      v1 = _mm_load_ps (X+i) ;
+
+      _mm_store_ps (axpy, v1) ;
+
+      Y[i] += axpy[0]*alpha ;
+      Y[i+1] += axpy[1]*alpha ;
+      Y[i+2] += axpy[2]*alpha ;
+      Y[i+3] += axpy[3]*alpha ;
     }
-  return;
+
+    return ;
 }
 
 void mnblas_daxpy(const int N, const double alpha, const double *X,
                  const int incX, double *Y, const int incY)
 {
+  __m128d v1 ;
+  register unsigned int i ;
+  double axpy [2] __attribute__ ((aligned (16))) ;
+
   #pragma omp parallel for
-  for (int i = 0; i < N ; i += incX)
+    for (i = 0; i < N; i = i + 2)
     {
-      Y[i] = alpha*X[i] + Y[i];
+      v1 = _mm_load_pd (X+i) ;
+
+      _mm_store_pd (axpy, v1) ;
+
+      Y[i] += axpy[0]*alpha ;
+      Y[i+1] += axpy[1]*alpha ;
     }
 
-    return;
+    return ;
 
 }
 
@@ -43,6 +65,7 @@ void mnblas_caxpy(const int N, const void *alpha, const void *X,
       y[i].real = axpy_r;
       y[i].imaginary = axpy_i;
     }
+    
 }
 
 void mnblas_zaxpy(const int N, const void *alpha, const void *X,
