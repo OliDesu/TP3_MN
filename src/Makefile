@@ -6,7 +6,7 @@ all: libmnblas.a libmnblasdyn.so
 LIB_DIR=../lib
 INC_DIR=../include
 
-OPTIONS=-Wall -fopenmp -msse4.2 -mavx2 -mfma -fPIC $(OPTIM) -I$(INC_DIR) -g
+OPTIONS=-Wall -fopenmp -msse4.2 -mavx2 -mfma -fPIC $(OPTIM) -I$(INC_DIR) -O2
 
 # Bibliothèque statique
 
